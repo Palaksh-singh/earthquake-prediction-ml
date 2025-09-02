@@ -1,0 +1,23 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore dataset files (large raw CSVs)
+data/*.csv
+
+# Ignore model weights and checkpoints
+models/*.h5
+models/*.pkl
+
+# Ignore generated assets (plots, maps, etc.)
+assets/
+
+# Ignore OS/system files
+.DS_Store
+Thumbs.db
