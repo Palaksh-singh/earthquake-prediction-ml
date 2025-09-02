@@ -20,32 +20,32 @@ This project builds a **Machine Learning model** to predict earthquake **magnitu
 
 ## 📂 Project Structure
 
-earthquake-prediction-ml/
-│── data/
-│ ├── database.csv # Raw dataset
-│ ├── processed.csv # Preprocessed dataset
-│ ├── train.csv # Training split
-│ ├── test.csv # Testing split
-│
-│── models/
-│ ├── earth_model.h5 # Trained ML model
-│
-│── notebooks/
-│ ├── exploration.ipynb # Jupyter for EDA & experiments
-│
-│── src/
-│ ├── preprocess.py # Data cleaning & preprocessing
-│ ├── split_data.py # Train/test split
-│ ├── train_model.py # Training pipeline
-│ ├── evaluate_model.py # Model evaluation
-│ ├── visualize.py # Generate interactive map
-│
-│── assets/
-│ ├── screenshots/ # Visualization screenshots
-│ ├── earthquake_map.html # Interactive map output
-│
-│── requirements.txt
-│── README.md
+    earthquake-prediction-ml/
+    │── data/
+    │ ├── database.csv # Raw dataset
+    │ ├── processed.csv # Preprocessed dataset
+    │ ├── train.csv # Training split
+    │ ├── test.csv # Testing split
+    │
+    │── models/
+    │ ├── earth_model.h5 # Trained ML model
+    │
+    │── notebooks/
+    │ ├── exploration.ipynb # Jupyter for EDA & experiments
+    │
+    │── src/
+    │ ├── preprocess.py # Data cleaning & preprocessing
+    │ ├── split_data.py # Train/test split
+    │ ├── train_model.py # Training pipeline
+    │ ├── evaluate_model.py # Model evaluation
+    │ ├── visualize.py # Generate interactive map
+    │
+    │── assets/
+    │ ├── screenshots/ # Visualization screenshots
+    │ ├── earthquake_map.html # Interactive map output
+    │
+    │── requirements.txt
+    │── README.md
 
 
 ---
