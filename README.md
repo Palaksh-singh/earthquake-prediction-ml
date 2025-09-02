@@ -127,9 +127,9 @@ Each point represents an earthquake event, color-coded by predicted magnitude.
 
 ## 📬 Contact
 
-    -Email: palakshkumar866@gmail.com
-    -GitHub: [Palaksh-singh](https://github.com/Palaksh-singh)
-    -LinkedIn: [Palaksh Kumar](https://www.linkedin.com/in/palaksh-kumar-584674346/)
-    -Instagram: [palakshkumar_](https://www.instagram.com/palakshkumar_)
+-**Email**: palakshkumar866@gmail.com
+-**GitHub**: [Palaksh-singh](https://github.com/Palaksh-singh)
+-**LinkedIn**: [Palaksh Kumar](https://www.linkedin.com/in/palaksh-kumar-584674346/)
+-**Instagram**: [palakshkumar_](https://www.instagram.com/palakshkumar_)
 
 
