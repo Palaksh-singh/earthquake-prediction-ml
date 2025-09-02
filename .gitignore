@@ -15,9 +15,6 @@ data/*.csv
 models/*.h5
 models/*.pkl
 
-# Ignore generated assets (plots, maps, etc.)
-assets/
-
 # Ignore OS/system files
 .DS_Store
 Thumbs.db
