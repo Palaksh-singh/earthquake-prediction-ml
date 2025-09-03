@@ -1,120 +1,122 @@
+# app.py
 import streamlit as st
 import pandas as pd
-import folium
-from streamlit_folium import st_folium
 import tensorflow as tf
 import numpy as np
+import folium
+from streamlit_folium import st_folium
+import joblib
+import os
 
-# Page settings
-st.set_page_config(page_title="Earthquake Prediction", page_icon="🌍", layout="wide")
+# ==============================
+# PAGE CONFIG
+# ==============================
+st.set_page_config(page_title="🌍 Earthquake Prediction ML App", layout="wide")
+st.title("🌍 Earthquake Prediction & Visualization App")
 
-# Sidebar
-st.sidebar.title("⚡ Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Upload & Predict", "About"])
-
-# Load model (once)
+# ==============================
+# LOAD MODEL & SCALER
+# ==============================
 @st.cache_resource
-def load_model():
+def load_model_and_scaler():
+    model, scaler = None, None
     try:
-        return tf.keras.models.load_model("models/earth_model.h5")
+        model = tf.keras.models.load_model("models/earth_model.h5")
     except Exception as e:
-        st.error(f"⚠️ Could not load model: {e}")
-        return None
+        st.warning(f"⚠️ Model not found or failed to load: {e}")
+    try:
+        scaler = joblib.load("models/scaler.save")
+    except Exception as e:
+        st.warning(f"⚠️ Scaler not found or failed to load: {e}")
+    return model, scaler
 
-model = load_model()
+model, scaler = load_model_and_scaler()
 
-# Home page
+# ==============================
+# SIDEBAR NAVIGATION
+# ==============================
+page = st.sidebar.radio("📌 Navigation", ["Home", "Model Prediction", "Visualize Earthquakes"])
+
+# ==============================
+# HOME PAGE
+# ==============================
 if page == "Home":
-    st.title("🌍 Earthquake Prediction Dashboard")
-    st.markdown(
-        """
-        Welcome to the **Earthquake Prediction ML App**.  
-        This tool uses **Machine Learning** to analyze earthquake data and make predictions.
+    st.header("📖 Project Overview")
+    st.write("""
+    Welcome to the **Earthquake Prediction & Visualization App**!  
+    This app uses **Machine Learning** to predict earthquake **magnitude and depth** based on seismic data, 
+    and provides an **interactive map** for exploring historical earthquake events worldwide.
+    """)
+    st.markdown("""
+    **Features:**  
+    - Predict earthquake magnitude & depth from latitude, longitude, and depth input  
+    - Interactive map of historical earthquakes with magnitude-scaled markers  
+    - Easy navigation using sidebar  
+    """)
 
-        **Features:**
-        - Upload earthquake dataset (CSV)  
-        - Predict **magnitude** & **depth**  
-        - Visualize earthquakes on an **interactive world map**  
-        - Get performance metrics  
+# ==============================
+# MODEL PREDICTION PAGE
+# ==============================
+elif page == "Model Prediction":
+    st.header("🔮 Predict Earthquake Parameters")
+    st.write("Enter the earthquake coordinates and depth to get a prediction:")
 
-        ---
-        """
-    )
+    # Input fields
+    lat = st.number_input("Latitude", value=20.0, format="%.6f")
+    lon = st.number_input("Longitude", value=80.0, format="%.6f")
+    depth_input = st.number_input("Depth (km)", value=10.0, format="%.2f")
 
-# Upload & Predict page
-elif page == "Upload & Predict":
-    st.title("📂 Upload Dataset & Predict")
+    if st.button("Predict"):
+        if model and scaler:
+            try:
+                X_input = np.array([[lat, lon, depth_input]])
+                X_scaled = scaler.transform(X_input)
+                
+                with st.spinner("Predicting..."):
+                    prediction = model.predict(X_scaled)
+                    pred_mag, pred_depth = prediction[0]
 
-    uploaded_file = st.file_uploader("Upload your earthquake dataset (CSV)", type="csv")
-
-    if uploaded_file:
-        data = pd.read_csv(uploaded_file)
-        st.write("### 📊 Dataset Preview", data.head())
-
-        # Ensure required columns
-        if {"latitude", "longitude", "depth", "magnitude"}.issubset(data.columns):
-            # Prepare features
-            X = data[["latitude", "longitude", "depth"]].values
-
-            if model:
-                # Predictions
-                preds = model.predict(X)
-                data["predicted_magnitude"] = preds[:, 0]
-                data["predicted_depth"] = preds[:, 1]
-
-                # Metrics section
-                st.subheader("📈 Model Performance (on uploaded data)")
-                col1, col2 = st.columns(2)
-
-                mae_mag = np.mean(np.abs(data["magnitude"] - data["predicted_magnitude"]))
-                mae_depth = np.mean(np.abs(data["depth"] - data["predicted_depth"]))
-
-                col1.metric("MAE Magnitude", f"{mae_mag:.3f}")
-                col2.metric("MAE Depth", f"{mae_depth:.2f}")
-
-                # Tabs for results
-                tab1, tab2 = st.tabs(["🔍 Predictions", "🗺️ Map View"])
-
-                with tab1:
-                    st.write("### Predictions (first 10 rows)")
-                    st.dataframe(data.head(10))
-
-                with tab2:
-                    st.write("### Earthquake Map")
-                    m = folium.Map(location=[20, 0], zoom_start=2)
-
-                    for _, row in data.iterrows():
-                        folium.CircleMarker(
-                            location=[row["latitude"], row["longitude"]],
-                            radius=3,
-                            popup=f"True Mag: {row['magnitude']}, Pred Mag: {row['predicted_magnitude']:.2f}, Depth: {row['depth']}",
-                            color="red",
-                            fill=True
-                        ).add_to(m)
-
-                    st_folium(m, width=800, height=500)
+                st.success(f"✅ Predicted Magnitude: {pred_mag:.2f}")
+                st.info(f"🌊 Predicted Depth: {pred_depth:.2f} km")
+            except Exception as e:
+                st.error(f"❌ Prediction failed: {e}")
         else:
-            st.error("CSV must include: `latitude`, `longitude`, `depth`, `magnitude`")
+            st.warning("⚠️ Model or scaler not available. Please check the files in `models/`.")
 
-# About page
-elif page == "About":
-    st.title("ℹ️ About this Project")
-    st.markdown(
-        """
-        This project demonstrates **Machine Learning for Earthquake Prediction**.  
-        Built using:
-        - 🐍 Python, Pandas, TensorFlow  
-        - 🌍 Folium for interactive maps  
-        - 🎨 Streamlit for web app  
+# ==============================
+# VISUALIZE EARTHQUAKES PAGE
+# ==============================
+elif page == "Visualize Earthquakes":
+    st.header("🗺️ Historical Earthquake Map")
+    st.write("Explore earthquake events worldwide. Marker size scales with magnitude.")
 
-        **Developer:** Palaksh Kumar  
-        📧 [Email](mailto:palakshkumar866@gmail.com)  
-        💻 [GitHub](https://github.com/Palaksh-singh)  
-        🔗 [LinkedIn](https://www.linkedin.com/in/palaksh-kumar-584674346/)  
-        📸 [Instagram](https://www.instagram.com/palakshkumar_)  
-        """
-    )
-    st.image("https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif", width=400)
-    st.markdown("---")
-    st.markdown("© 2024 Palaksh Kumar. All rights reserved.")
-    
+    # Load earthquake data
+    try:
+        data = pd.read_csv("data/processed.csv")  # Ensure columns: latitude, longitude, magnitude, depth
+    except Exception as e:
+        st.error(f"⚠️ Could not load earthquake data: {e}")
+        data = pd.DataFrame(columns=["latitude", "longitude", "magnitude", "depth"])
+
+    # Filter data (optional)
+    min_mag, max_mag = st.slider("Filter by Magnitude", 0.0, 10.0, (0.0, 10.0), 0.1)
+    filtered_data = data[(data["magnitude"] >= min_mag) & (data["magnitude"] <= max_mag)]
+
+    # Initialize map
+    m = folium.Map(location=[20, 0], zoom_start=2)
+    for _, row in filtered_data.iterrows():
+        folium.CircleMarker(
+            location=[row["latitude"], row["longitude"]],
+            radius=max(2, row["magnitude"]*2),  # scale radius by magnitude
+            popup=f"Magnitude: {row['magnitude']:.2f}, Depth: {row['depth']:.2f} km",
+            color="red",
+            fill=True,
+            fill_color="red",
+            fill_opacity=0.6
+        ).add_to(m)
+
+    # Embed map
+    st_folium(m, width=900, height=600)
+
+    # Optional: Display raw data
+    with st.expander("View Raw Earthquake Data"):
+        st.dataframe(filtered_data)
