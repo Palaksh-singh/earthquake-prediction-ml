@@ -116,6 +116,8 @@ After training and testing:
 The predictions are visualized using Folium on a world map.
 Each point represents an earthquake event, color-coded by predicted magnitude.
 
+👉 Click here to view [earthquake_map.html](https://earthquake-prediction-ml-dspcg5kppz7tzc8dnqkvsg.streamlit.app/)
+
   -**Example Screenshot:-**
   ![Earthquake Map Screenshot](assets/screenshots/Screenshot%202025-09-02%20202705.png)
 
